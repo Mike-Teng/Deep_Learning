@@ -1,6 +1,7 @@
 #! /Users/mimac/miniconda3/bin/python
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 import math
 
 class Model():
@@ -10,7 +11,7 @@ class Model():
 		self.generate_data()
 
 		# hyperParam
-		self.neuronsInHidden = 4
+		self.neuronsInHidden = 8
 		self.inputBits = 2
 		self.outputBits = 1
 		self.lr = lr
@@ -34,6 +35,19 @@ class Model():
 	
 	def derivative_sigmoid(self, x):
 		return np.multiply(x, 1-x)
+
+	def relu(self, x):
+		return np.maximum(x, 0)
+	
+	def derivative_relu(self, x):
+		z = copy.deepcopy(x)
+		for i, v in enumerate(x):
+			for j, u in enumerate(v):
+				if u >= 0.5:
+					z[i][j] = 1
+				if u < 0.5:
+					z[i][j] = 0
+		return z
 
 	def mseloss(self, out, y):
 		return np.mean((out - y)**2)
@@ -139,7 +153,7 @@ class Model():
 
 		# plot loss curve
 		plt.plot(self.lossList)
-		plt.title(f"{self.data} Loss cuerve")
+		plt.title(f"{self.data} Loss curve")
 		plt.ylabel("loss")
 		plt.xlabel("epoch")
 		plt.show()
