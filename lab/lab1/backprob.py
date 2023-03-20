@@ -4,16 +4,16 @@ import matplotlib.pyplot as plt
 import math
 
 class Model():
-	def __init__(self, data):
+	def __init__(self, data, lr=0.1):
 		# data
 		self.data = data
 		self.generate_data()
 
 		# hyperParam
-		self.neuronsInHidden = 10
+		self.neuronsInHidden = 4
 		self.inputBits = 2
 		self.outputBits = 1
-		self.lr = 0.1
+		self.lr = lr
 
 		# weights
 		self.w1 = np.random.randn(self.inputBits, self.neuronsInHidden)
@@ -116,7 +116,8 @@ class Model():
 			# print(self.stepFunction(self.out), self.y)
 			loss = self.mseloss(self.out.flatten(), self.y.flatten())
 			self.lossList.append(loss)
-			print(f'epoch {i+1}, loss{loss}')
+			if (i+1) % 10000 == 0:
+				print(f'epoch {i+1}, loss{loss}')
 
 	def show_result(self):
 		plt.subplot(1,2,1)
@@ -135,15 +136,38 @@ class Model():
 			else:
 				plt.plot(self.x[i][0], self.x[i][1], "bo")
 		plt.show()
+
+		# plot loss curve
+		plt.plot(self.lossList)
+		plt.title(f"{self.data} Loss cuerve")
+		plt.ylabel("loss")
+		plt.xlabel("epoch")
+		plt.show()
+
+	def test(self):
+		count = 0
+		np.set_printoptions(suppress=True)
+		self.generate_data()
+		self.forwardPropagation()
+		for i in range(len(self.y.flatten())):
+			print(f'Iter{i+1:<3}| ground truth:{self.y.flatten()[i]}| pridiction:{np.round(self.out.flatten()[i], 5)}')
+			if self.stepFunction(self.out.flatten()[i]) == self.y.flatten()[i]:
+				count += 1
+		print(f'acc:{count/len(self.y.flatten())*100}%')
+
 if __name__ == '__main__':
 	# Hyper Parameters
-	EPOCH = 100000
+	EPOCH = 150000
 
-	xorModel = Model('xor')
-	xorModel.train(EPOCH)
-	xorModel.show_result()
+	# print("xor")
+	# xorModel = Model(data='xor')
+	# xorModel.train(EPOCH)
+	# xorModel.test()
+	# xorModel.show_result()
 	
-	linearModel = Model('linear')
+	print("linear")
+	linearModel = Model(data='linear', lr=0.05)
 	linearModel.train(EPOCH)
+	linearModel.test()
 	linearModel.show_result()
 
