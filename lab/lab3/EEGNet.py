@@ -121,12 +121,11 @@ def evaluate(model, test_data, device):
     correct = 100. * correct / float(len(test_data.dataset))
     return correct
 
-
 def train_EEG(train_data, test_data, activations, device):
     criterion = nn.CrossEntropyLoss()
 
-    learning_rate = 0.02
-    epochs = 350
+    learning_rate = 0.001
+    epochs = 300
     df = pd.DataFrame()
     df['epoch'] = range(1, epochs+1)
     best_test_acc = {"ReLU":0, "LeakyReLU":0, "ELU":0}
@@ -139,7 +138,7 @@ def train_EEG(train_data, test_data, activations, device):
         acc_test = list()
         print("Training with activation:", activation)
 
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=30, verbose=False, min_lr=0.00001, cooldown=10)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=20, verbose=False, min_lr=0.00001, cooldown=10)
         for epoch in range(1, epochs+1):
             model.train()
 
@@ -156,9 +155,9 @@ def train_EEG(train_data, test_data, activations, device):
                 for i in range(len(label)):
                     if pred[i] == label[i]:
                         correct += 1
-                    optimizer.zero_grad()
-                    loss.backward(retain_graph=True)
-                    optimizer.step()
+                optimizer.zero_grad()
+                loss.backward(retain_graph=True)
+                optimizer.step()
             scheduler.step(loss.item())
 
             total_loss = total_loss / float(len(train_data.dataset))
@@ -173,6 +172,7 @@ def train_EEG(train_data, test_data, activations, device):
             correct_test = evaluate(model, test_data, device)
             if correct_test > best_test_acc[name]:
                 best_test_acc[name] = correct_test
+                torch.save(model.state_dict(), str(name)+"_model_egg_2.pt")
             acc_test.append(correct_test)
             if epoch % 10 == 0:
                 print(f'acc_test:{correct_test:.2f}%')
@@ -185,7 +185,7 @@ def train_EEG(train_data, test_data, activations, device):
 def train_Deep(train_data, test_data, activations, device):
     criterion = nn.CrossEntropyLoss()
     learning_rate = 0.001
-    epochs = 350
+    epochs = 400
     df = pd.DataFrame()
     df['epoch'] = range(1, epochs+1)
     best_test_acc = {"ReLU":0, "LeakyReLU":0, "ELU":0}
@@ -228,6 +228,7 @@ def train_Deep(train_data, test_data, activations, device):
             correct_test = evaluate(model, test_data, device)
             if correct_test > best_test_acc[name]:
                 best_test_acc[name] = correct_test
+                torch.save(model.state_dict(), str(name)+"_model_deep.pt")
             acc_test.append(correct_test)
             if epoch%10==0:
                 print(f'epoch{epoch:>3d}  acc_test:{correct_test:.2f}%')
@@ -266,16 +267,16 @@ if __name__ == "__main__":
     
     dataset = TensorDataset(torch.from_numpy(
         test_data), torch.from_numpy(test_label))
-    test_dataset = DataLoader(dataset, batch_size=64, shuffle=True)
+    test_dataset = DataLoader(dataset, batch_size=64, shuffle=False)
 
     activations =  {"ReLU":nn.ReLU(), "LeakyReLU":nn.LeakyReLU(), "ELU":nn.ELU()}
-    #
-    # data, best_test_acc = train_EEG(train_dataset, test_dataset, activations, device)
-    # plot_EEG(data)
-    # for name, acc in best_test_acc.items():
-    #     print(name, " best accuracy EEG: ", acc, "%")
+    
+    data, best_test_acc = train_EEG(train_dataset, test_dataset, activations, device)
+    plot_EEG(data)
+    for name, acc in best_test_acc.items():
+        print(name, " best accuracy EEG: ", acc, "%")
 
-    data_deep, best_test_acc_deep = train_Deep(train_dataset, test_dataset, activations, device)
-    plot_Deep(data_deep)
-    for name, acc in best_test_acc_deep.items():
-        print(name, " best accuracy Deep: ", acc, "%")
+    # data_deep, best_test_acc_deep = train_Deep(train_dataset, test_dataset, activations, device)
+    # plot_Deep(data_deep)
+    # for name, acc in best_test_acc_deep.items():
+    #     print(name, " best accuracy Deep: ", acc, "%")
