@@ -1,1 +1,7 @@
 .DS_Store
+__pycache__
+/lab/lab4/new_train
+/lab/lab4/new_test
+/lab/lab4/models
+/lab/lab3/weight
+/lab/lab2/weights

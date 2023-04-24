@@ -463,7 +463,6 @@ public:
 	 * estimate the value of a given board
 	 */
 	virtual float estimate(const board& b) const {
-		//TODO
 		float value = 0;
 		for (int i = 0; i < iso_last; i++) {
 			size_t index = indexof(isomorphic[i], b);
@@ -476,7 +475,6 @@ public:
 	 * update the value of a given board, and return its updated value
 	 */
 	virtual float update(const board& b, float u) {
-		//TODO
 		float u_split = u / iso_last;
 		float value = 0;
 		for (int i = 0; i < iso_last; i++) {
@@ -522,7 +520,6 @@ public:
 protected:
 
 	size_t indexof(const std::vector<int>& patt, const board& b) const {
-		//TODO
 		size_t index = 0;
 		for (size_t i = 0; i < patt.size(); i++)
 			index |= b.at(patt[i]) << (4 * i);
