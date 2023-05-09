@@ -6,7 +6,7 @@ USER_NAME="user"
 REPO_NAME="Deep_Learning"
 CONTAINER_NAME="nycu-deep-learning-2023-spring"
 REPOSITORY="sunfuchou/nycu-deep-learning-2023-spring"
-TAG="cuda11.7-ubuntu22.04"
+TAG="cuda11.7-ubuntu22.04-update"
 IMG="${REPOSITORY}:${TAG}"
 
 CONTAINER_ID=$(docker ps -aqf "ancestor=${IMG}")
